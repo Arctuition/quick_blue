@@ -175,6 +175,7 @@ class QuickBluePlugin: FlutterPlugin, MethodCallHandler, EventChannel.StreamHand
               "name" to (result.device.name ?: ""),
               "deviceId" to result.device.address,
               "manufacturerDataHead" to (result.manufacturerDataHead ?: byteArrayOf()),
+              "rawScanRecord" to (result.scanRecord ?: byteArrayOf()),
               "rssi" to result.rssi
       ))
     }
