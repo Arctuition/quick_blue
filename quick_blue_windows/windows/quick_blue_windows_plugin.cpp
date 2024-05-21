@@ -211,8 +211,14 @@ QuickBlueWindowsPlugin::QuickBlueWindowsPlugin() {
 QuickBlueWindowsPlugin::~QuickBlueWindowsPlugin() {}
 
 winrt::fire_and_forget QuickBlueWindowsPlugin::InitializeAsync() {
-  auto bluetoothAdapter = co_await BluetoothAdapter::GetDefaultAsync();
-  bluetoothRadio = co_await bluetoothAdapter.GetRadioAsync();
+  auto radios = co_await Radio.GetRadiosAsync();
+  for (auto &&radio : radios) {
+    if (radio.Kind() == RadioKind::Bluetooth) {
+      bluetoothRadio = radio;
+    }
+    if (!bluetoothRadio) {
+      std::cout << "Bluetooth is not available on this device." << std::endl;
+    }
 }
 
 void QuickBlueWindowsPlugin::HandleMethodCall(
@@ -221,7 +227,11 @@ void QuickBlueWindowsPlugin::HandleMethodCall(
   auto method_name = method_call.method_name();
   OutputDebugString((L"HandleMethodCall " + winrt::to_hstring(method_name) + L"\n").c_str());
   if (method_name.compare("isBluetoothAvailable") == 0) {
-    result->Success(EncodableValue(bluetoothRadio && bluetoothRadio.State() == RadioState::On));
+    if(!bluetoothRadio) {
+      result->Error("Bluetooth unavailable","Bluetooth is not available on this device");
+    } else {
+      result->Success(EncodableValue(bluetoothRadio && bluetoothRadio.State() == RadioState::On));
+    }
   } else if (method_name.compare("startScan") == 0) {
     if (!bluetoothLEWatcher) {
       bluetoothLEWatcher = BluetoothLEAdvertisementWatcher();
