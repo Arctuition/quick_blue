@@ -215,6 +215,7 @@ winrt::fire_and_forget QuickBlueWindowsPlugin::InitializeAsync() {
   for (auto &&radio : radios) {
     if (radio.Kind() == RadioKind::Bluetooth) {
       bluetoothRadio = radio;
+      break;
     }
   }
   if (!bluetoothRadio) {
